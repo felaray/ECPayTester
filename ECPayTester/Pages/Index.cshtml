@@ -1,0 +1,72 @@
+﻿@page
+@model IndexModel
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration config;
+@{
+    ViewData["Title"] = "Home page";
+
+}
+@section Scripts{
+
+    <script>
+        var merchantID = @Html.Raw( Json.Serialize(Model.tradeNo));
+
+        var tradeNo = @Html.Raw( Json.Serialize(Model.tradeNo));
+        var tradeDate = @Html.Raw( Json.Serialize(Model.tradeDate));
+        var tradeDesc = @Html.Raw( Json.Serialize(Model.tradeDesc));
+        var itemName = @Html.Raw( Json.Serialize(Model.itemName));
+        var returnUrl = @Html.Raw( Json.Serialize(Model.returnUrl));
+        var amt = @Html.Raw( Json.Serialize(Model.amt));
+        var orderResultURL = @Html.Raw( Json.Serialize(Model.orderResultURL));
+        var checkMacValue = @Html.Raw( Json.Serialize(Model.checkMacValue));
+
+        new Vue({
+            el: '#app',
+            data: {
+                returnEndpoint: "https://5e63-114-32-66-159.ngrok.io",
+                trade: {
+                    no: tradeNo,
+                    date: tradeDate,
+                    desc: tradeDesc,
+                    itemName: itemName,
+                    returnUrl: returnUrl,
+                    amt: amt,
+                    orderResultURL: orderResultURL,
+                    checkMacValue: checkMacValue,
+                }
+            },
+            methods: {
+                submit() {
+                    this.$refs.submit.click();
+                },
+            },
+            created() {
+                console.log("vue ready", this.trade);
+            },
+
+        })
+    </script>
+
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <button type="button" id="btnAjaxPost" class="btn btn-primary -hightlight input-rounded ml-auto" @@click="submit">確認無誤，前往付款</button>
+</div>
+
+<form hidden v-show="false" id="ecpay" name='ecpay' method='post' ref="form"
+      action="@(config["ECPay:Endpoint"])/Cashier/AioCheckOut/V5">
+    <input type='text' name='MerchantID' value="@(config["ECPay:MerchantID"])"><br>
+    <input type='text' name='MerchantTradeNo' v-model="trade.no"><br>
+    <input type='text' name='MerchantTradeDate' v-model="trade.date"><br>
+    <input type='text' name='PaymentType' value="aio"><br>
+    <input type='text' name='TotalAmount' v-model="trade.amt"><br>
+    <input type='text' name='TradeDesc' v-model="trade.desc"><br>
+    <input type='text' name='ItemName' v-model="trade.itemName"><br>
+    <input type='text' name='ReturnURL' v-model="trade.returnUrl"><br>
+    <input type='text' name='ChoosePayment' value="ALL"><br>
+    <input type='text' name='CheckMacValue' v-model="trade.checkMacValue"><br>
+    <input type='text' name='EncryptType' value="1"><br>
+    <input type='text' name='OrderResultURL' v-model="trade.orderResultURL"><br>
+    <input type='submit' value='Submit' ref="submit">
+</form>
